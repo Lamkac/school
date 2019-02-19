@@ -54,7 +54,7 @@ void print_header(int count){
 
 int main(){
 	
-	int runners_count = 4; // pocet bezcov
+	int runners_count = 2; // pocet bezcov
 	int race_length = 400; // dlzka trate v metroch
 	int obstacles = 50; // dlzka medzi prikazkami v metroch
 	
