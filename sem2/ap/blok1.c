@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<float.h>
+#include<math.h>
 
 void printToBinary(int n, int len){
 
@@ -66,12 +67,63 @@ void uloha13(){
 
 }
 
+int power(int a, int b){
+
+	for(int i = 1; i < b; i++){
+		a *= a;
+	}
+	return a;
+	
+}
+
+float factorial(int a){
+	int vys = 1.0;
+	for(int i = 1; i < a; i++){
+		vys += i + 1.0;
+	}
+	return vys;
+	
+}
+
+float sinus(float radians, float epsilon){
+	
+	if(radians > (M_PI/2))
+		return sinus(radians - M_PI,epsilon);
+	
+	
+	float x = radians;
+	float last = radians;
+	int i = 1;
+	
+	while( fabs(last - x) < epsilon){
+	
+		last = x;
+		
+		int j = 1;
+		if(i%2)
+			j = -1;
+			
+		x += (j * powf(x,2*i+1)) / factorial(2*i+1);
+		
+		i++;
+		
+		if (i>1000){
+			printf("Test");
+			break;
+		}
+		
+	}
+	
+	return x;
+
+}
+
 int main(){
 
 	uloha11();
-	
 	printf("\n\n");
-	
 	uloha13();
+	printf("\n\n");
+	printf("%f",sinus(3,0.0001));
 	
 }
