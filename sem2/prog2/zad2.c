@@ -1,3 +1,4 @@
+// Jan Kucan 85917
 
 // arena
 #define ARENA_W 70 // without border d70
