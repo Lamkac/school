@@ -81,7 +81,7 @@ float distance_units(struct Unit unit1,struct Unit unit2){
 	return distance(unit1.x,unit1.y,unit2.x,unit2.y);
 }
 
-float infi(float *n, float max){
+void infi(float *n, float max){
 	
 	if(*n > max)
 		*n -= max;
