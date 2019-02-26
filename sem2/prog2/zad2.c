@@ -111,8 +111,8 @@ int win_check(struct Unit monster[]){
 void print_arena(struct Unit hunter, struct Unit monster[], int end){
 	
 	CLEAR_SCREEN(); // clean console
-    printf("ARENA SIZE: %dx%d\n", ARENA_W, ARENA_H); // arena size
-    printf("(%c)    Hunter: (%5.2f,%5.2f) angle: %3.0f\n",P_HUNTER,hunter.x,hunter.y,hunter.angle); //hunter
+	printf("ARENA SIZE: %dx%d\n", ARENA_W, ARENA_H); // arena size
+	printf("(%c)    Hunter: (%5.2f,%5.2f) angle: %3.0f\n",P_HUNTER,hunter.x,hunter.y,hunter.angle); //hunter
 	// all monsters
 	for(int i = 0; i < MONSTER_COUNT; i++) {
 		printf("(%c) Monster %d: (%5.2f,%5.2f) angle: %3.0f distance: %6.2f ",P_MONSTER,i+1,monster[i].x,monster[i].y,monster[i].angle,distance_units(hunter,monster[i]));
@@ -235,8 +235,8 @@ int main(){
 	
 	// suradnice lovca a priser
 	struct Unit hunter, monster[MONSTER_COUNT];
-    float x_H, y_H, a_H;
-    float x_M, y_M, a_M;
+	float x_H, y_H, a_H;
+	float x_M, y_M, a_M;
 	char c = FORWARD;
 	
 	srand(time(NULL)); // init random seed
