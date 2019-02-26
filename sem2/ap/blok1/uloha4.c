@@ -15,21 +15,21 @@ float factorial(int a){
 
 float sinus(float radians, float epsilon){
 	
-	if(radians > ((3*M_PI)/2))
-		return sinus(radians - (2*M_PI),epsilon);
-	if(radians < -(M_PI/2))
-		return sinus(radians + (2*M_PI),epsilon);
+	double pi = M_PI;
+	
+	if(radians > ((3*pi)/2))
+		return sinus(radians - (2*pi),epsilon);
+	if(radians < -(pi/2))
+		return sinus(radians + (2*pi),epsilon);
 	
 	int invert = 1;
-	if(radians > M_PI/2){
+	if(radians > pi/2){
 		invert = -1;
-		radians -= M_PI;
-	}else if(radians < -(M_PI/2)){
+		radians -= pi;
+	}else if(radians < -(pi/2)){
 		invert = -1;
-		radians += M_PI;
+		radians += pi;
 	}
-	
-	printf("%f\n",radians);
 	
 	float x = radians;
 	float last = 0;
@@ -43,7 +43,7 @@ float sinus(float radians, float epsilon){
 		if(i%2)
 			j = -1;
 			
-		x += (j * powf(x,2*i+1)) / factorial(2*i+1);
+		x += (j * pow(radians,2*i+1)) / factorial(2*i+1);
 		
 		i++;
 	}
@@ -60,8 +60,8 @@ int main(){
 		if(c > 1000000)
 			break;
 	
-		printf("%f\n",sinus(c,0.01));
-		printf("%f\n",sin(c));
+		printf("%.5f\n",sinus(c,0.00001));
+		printf("%.5f\n",sin(c));
 	}
 	
 	
