@@ -35,13 +35,11 @@ void rim(int number,char a, char b, char c){
 
 int main(){
 	
-	//for(int i=1;i<100;i++){
+	int c;
+	scanf("%d",&c);
+	
+	rim((c/10)%10,'X','L','C');
+	rim(c%10,'I','V','X');
+	printf("\n");
 		
-		int c;
-		scanf("%d",&c);
-		
-		rim((c/10)%10,'X','L','C');
-		rim(c%10,'I','V','X');
-		printf("\n");
-	//}
 }
