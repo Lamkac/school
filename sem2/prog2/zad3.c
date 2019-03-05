@@ -12,9 +12,9 @@
 
 // link headers
 //#include "cp_data1.h"
-#include "cp_data2.h"
+//#include "cp_data2.h"
 //#include "cp_data3.h"
-//#include "cp_data4.h"
+#include "cp_data4.h"
 
 // print x time in row one char
 void printRepeat(char c, int count){
@@ -152,10 +152,23 @@ void drawCP(int stopNumber, int c_hour, int c_minute){
 			printf("\n");
 		
 	}
+	// if no bus stop found show next day first
+	if(c_hour){
+		printf("%02d:%02d",PRVY_SPOJ_H,PRVY_SPOJ_M + (stopNumber * DELTA));
+		return;
+	}
+	
 	// wait
 	printf("\n\n    Stlac ENTER pre menu");
 	getchar();
 	
+}
+
+// check number
+int checkNumber(int n, int min, int max){
+
+	return (n>=min && n<max);
+
 }
 
 // menu for closes time
@@ -176,8 +189,12 @@ void closestTime(int busStop){
 	scanf(" %d",&minute);
 	
 	printRepeat(' ',OFFSET);
-	printf("najblizsi spoj: ");
-	drawCP(busStop,hour,minute);
+	if(checkNumber(hour,0,24) && checkNumber(minute,0,60)){
+		printf("najblizsi spoj: ");
+		drawCP(busStop,hour,minute);
+	}else{
+		printf("Nespravny format casu!");
+	}
 	
 	printf("\n\n    Stlac ENTER pre menu");
 	getchar();getchar();
