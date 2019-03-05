@@ -7,29 +7,27 @@
 float factorial(int a){
 	int vys = 1.0;
 	for(int i = 1; i < a; i++){
-		vys += i + 1.0;
+		vys *= i + 1.0;
 	}
 	return vys;
 	
 }
 
-float sinus(float radians, float epsilon){
+float sinus(float degre, float epsilon){
 	
-	double pi = M_PI;
-	
-	if(radians > ((3*pi)/2))
-		return sinus(radians - (2*pi),epsilon);
-	if(radians < -(pi/2))
-		return sinus(radians + (2*pi),epsilon);
+	while(degre > 270)
+		degre -= 360;
+		
+	while(degre <= -90)
+		degre += 360;
 	
 	int invert = 1;
-	if(radians > pi/2){
+	if(degre > 90){
 		invert = -1;
-		radians -= pi;
-	}else if(radians < -(pi/2)){
-		invert = -1;
-		radians += pi;
+		degre -= 180;
 	}
+	
+	float radians = degre*M_PI/180;
 	
 	float x = radians;
 	float last = 0;
@@ -43,7 +41,7 @@ float sinus(float radians, float epsilon){
 		if(i%2)
 			j = -1;
 			
-		x += (j * pow(radians,2*i+1)) / factorial(2*i+1);
+		x += j * (pow(radians,2*i+1)) / factorial(2*i+1);
 		
 		i++;
 	}
@@ -57,11 +55,10 @@ int main(){
 	float c;
 	while(1){
 		scanf("%f", &c);
-		if(c > 1000000)
+		if(c > 10000000)
 			break;
-	
+		
 		printf("%.5f\n",sinus(c,0.00001));
-		printf("%.5f\n",sin(c));
 	}
 	
 	
