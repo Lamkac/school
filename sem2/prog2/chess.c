@@ -192,7 +192,7 @@ int move_king(int srow, int scol, int trow, int tcol, int p_id){
 
 int move(int srow, int scol, int trow, int tcol, int p_id){
 	
-	// ak su suradnice vo vnutry
+	// ak su suradnice vo vnutri
 	if (!((srow >= 0 && srow < L)&&(scol >= 0 && scol < L)&&(trow >= 0 && trow < L)&&(tcol >= 0 && tcol < L))){
 		return 0;
 	}
