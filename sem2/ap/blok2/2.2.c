@@ -1,17 +1,20 @@
-// school.cpp : Defines the entry point for the console application.
-
-#include "stdafx.h"
-#pragma warning(disable:4996)
+#include <stdio.h>
 
 int main()
 {
-	char* text = "architektura_pocitacov_je_super_predmet_milujem_ho";
-	void *pointer = text;
-
+	char text[] = "architektura_pocitacov_je_super_predmet_milujem_ho";
+	char *pointer = text;
+	
 	printf("%s\n", text);
+	
 	printf("%p\n", pointer);
-	*text++;
+	pointer++;
+	*pointer = 150;
+	
 	printf("%s\n", text);
+	
+	pointer = (char*) 12345;
+	*pointer = 150;
 
 	return 0;
 }

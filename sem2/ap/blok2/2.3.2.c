@@ -8,13 +8,10 @@ int main(){
 	fread = fopen("koniec.htm","rb");
 	fwrite = fopen("koniec_r.htm","wb");
 	
-	char c = 0;
+	char c = getc(fread);
 	while(c != EOF){
+		putc(c^27,fwrite);
 		c = getc(fread);
-		
-		c ^= 27;
-		
-		putc(c,fwrite);
 	}
 	
 	fclose(fread);
