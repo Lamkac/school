@@ -1,15 +1,19 @@
+// Jan Kucan 85917
+
 #include <stdio.h>
 #include <time.h>
 #include "robot_race.h"
 
 int main(int argc, char* argv[]){
 	
-	int robots_count = 5; // pocet hracov
+	int robots_count = 10; // pocet hracov
+	int race_width = 20;
+	int race_height = 40;
 	Track track;
 	Robot robots[robots_count];
 	
 	srand(time(NULL)); // init random seed
-	initTrack(&track,40,30); // init trate
+	initTrack(&track,race_width,race_height); // init trate
 	initRobots(robots,robots_count,&track); // init robotov
 	
 	

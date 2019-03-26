@@ -1,3 +1,5 @@
+// Jan Kucan 85917
+
 #include <stdio.h>
 #include <math.h>
 #include "robot_race.h"
@@ -10,20 +12,24 @@ int random_number(int a, int b) {
 // inicializacia pre trat
 void initTrack(Track* track, int width, int height){
     
-	track->width = width;
-	track->height = height;
+	track->width = (width>MAX_TRACK_WIDTH)?MAX_TRACK_WIDTH:width;
+	track->height = (height>MAX_TRACK_HEIGHT)?MAX_TRACK_HEIGHT:height;
 	
 	int obs_count = height / (OBSTACLE_AREA_HEIGHT + ROBOT_SPEED);
 	//int obs_count = 4;
 	Obstacle obstacles[obs_count];
 	
 	for(int i=0; i<obs_count; i++){
+		
+		if(i>=MAX_OBSTACLES)
+			break;
+	
 		// Y
 		int randStartYoffset = rand()%(OBSTACLE_AREA_HEIGHT - ROBOT_SPEED); // nahodna Y v bloku pre prekazku
 		int randStartY = i*(OBSTACLE_AREA_HEIGHT + ROBOT_SPEED) + 2 + randStartYoffset;
 		int randHeight = random_number(ROBOT_SPEED, OBSTACLE_AREA_HEIGHT - randStartYoffset); // vyska bloku
 		// X
-		int randStartX = rand()%(width - (ROBOT_SPEED*3)); // nahodne X aby bola aspon medzera pre jedneho robota
+		int randStartX = rand()%(width - ROBOT_SPEED - 1); // nahodne X aby bola aspon medzera pre jedneho robota
 		int randWidth = random_number(ROBOT_SPEED, width - randStartX); // nahodna dlzka
 		// init prekazku
 		Obstacle obs = {randStartX,randStartY,randWidth,randHeight};
