@@ -40,7 +40,7 @@ void initTrack(Track* track, int width, int height){
 	track->obstacles_count = obs_count;
 }
 
-// Finicializacia robotov
+// Inicializacia robotov
 void initRobots(Robot robots[], int n, Track* track){
     
 	// vzdialenost pre robotov na zaciatku
