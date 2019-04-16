@@ -3,26 +3,46 @@
 #ifndef DATABASE
 #define DATABASE
 
+// MAKRA na vymazanie obsahu konzoly a uspanie programu
+#ifdef _WIN32
+#include <windows.h>
+#define CLEAR_SCREEN() system("cls")
+#define SLEEP(sleepMs) Sleep(sleepMs)
+#else
+#include <unistd.h>
+#define CLEAR_SCREEN() system("clear")
+#define SLEEP(sleepMs) usleep(sleepMs * 1000)
+#endif
+
+// KONSTANTY
+#define NAME_MAX_LEN 15
+#define POSITION_MAX_LEN 15
+
+static char NAME_CHARSET[] = "abcdefghijklmnopqrstuvwxyz";
+static char* POSITIONS[] = {"developer","tester","analytik","web dizajner","db architekt"};
+// datum
 typedef struct {
 	int day;
 	int month;
 	int year;
-} Birth;
-
+} Date;
+// informacie
 typedef struct {
-	char* meno;
-	Birth birth;
-} Udaje;
-
+	char name[NAME_MAX_LEN];
+	Date birth;
+} Information;
+// zamenstanec
 typedef struct  {
 	int ID;
-	int plat;
-	int pozicia;
-	Udaje udaje;
-} Unit;
+	double salary;
+	char position[POSITION_MAX_LEN];
+	Information info;
+} Employee;
 
-// funckie
-Unit* generateUnits();
-void printUnits(Unit* units);
+// funkcie
+Employee generateEmployee(); // vygenerovat zamestnanca
+void generateEmployees(Employee employees[], int n); // vygenerovat n zamestnancov
+void printEmployee(Employee *employees); // vypisat zamestnanca
+void printEmployees(Employee employees[], int n); // vypisat zamestnancov
 
 #endif
