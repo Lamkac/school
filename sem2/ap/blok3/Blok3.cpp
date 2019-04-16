@@ -77,7 +77,7 @@ int connectToServer(SOCKET *ConnectSocket, char* ip, char* port) {
 		return 0;
 	}
 
-	Sleep(250);
+	Sleep(2000);
 
 	return 1;
 }
@@ -88,7 +88,7 @@ void disconnectFromServer(SOCKET *ConnectSocket) {
 	WSACleanup();
 }
 
-int sendMessage(SOCKET *ConnectSocket, char* message) {
+int sendMessage(FILE *file, SOCKET *ConnectSocket, char* message) {
 
 	int status_result = send(*ConnectSocket, message, (int)strlen(message), 0);
 	if (status_result == SOCKET_ERROR)
@@ -99,16 +99,22 @@ int sendMessage(SOCKET *ConnectSocket, char* message) {
 		return 0;
 	}
 
-	printf("Bytes Sent : %ld\n", status_result); //vypisanie poctu odoslanych dat
+	fprintf(file, "Poslane:\n");
+	fprintf(file, message);
+	fprintf(file, "\n");
 
 	return 1;
 }
 
-int recieveMessage(SOCKET *ConnectSocket, char* recieve_buffer, int len) {
+int recieveMessage(FILE *file, SOCKET *ConnectSocket, char* recieve_buffer, int len) {
 	int status_result = recv(*ConnectSocket, recieve_buffer, len, 0);
 
 	if (status_result > 0) {
-		printf("Bytes received : %d\n", status_result); //prisli validne data, vypis poctu
+
+		fprintf(file, "prijate:\n");
+		fprintf(file, recieve_buffer);
+		fprintf(file, "\n");
+
 		return 1;
 	} else if (status_result == 0) {
 		printf("Connection closed\n"); //v tomto pripade server ukoncil komunikaciu
@@ -120,17 +126,22 @@ int recieveMessage(SOCKET *ConnectSocket, char* recieve_buffer, int len) {
 
 }
 
-void printMessages(HANDLE hConsole, char *message, int offset, int len) {
+void printMessage(HANDLE *hConsole, char *message, char *title, int offset, int len) {
 
-	int line = 1;
+	int line = 4;
 	int tempLen = 0;
-	printf("Sprava %s", message);
 
-	char *word = strtok(message, " ");
+	COORD point = { offset, line - 1 };
+	SetConsoleCursorPosition(*hConsole, point);
+	printf("%s", title);
 
-	printf("Sprava %s", word);
+	point.X = offset + tempLen;
+	point.Y = line;
 
-	/*while (word != NULL) {
+	char *word;
+	word = strtok(message, " ");
+
+	while (word != NULL) {
 
 		if (tempLen + strlen(word) > len) {
 			line++;
@@ -138,25 +149,96 @@ void printMessages(HANDLE hConsole, char *message, int offset, int len) {
 			continue;
 		}
 
-		tempLen += strlen(word);
-
-		COORD point = { offset+tempLen, line };
-		SetConsoleCursorPosition(hConsole, point);
+		point.X = offset + tempLen;
+		point.Y = line;
+		SetConsoleCursorPosition(*hConsole, point);
 		printf("%s",word);
+
+		tempLen += strlen(word) + 1;
 
 		word = strtok(NULL, " ");
 
-	}*/
+	}
+
+}
+
+void printMessages(HANDLE *hConsole, char *messageLeft, char *messageRight) {
+
+	printMessage(hConsole, messageLeft, "Poslane:", 2, 58);
+	printMessage(hConsole, messageRight, "Prijate:", 63, 56);
+
+	COORD point = {1, 1};
+	SetConsoleCursorPosition(*hConsole, point);
+	
+	printf(" Poslat: ");
+
+}
+
+int parseCommnad(char *command) {
+
+	char *temp;
+	temp = strtok(command, " ");
+
+	if (!strcmp(temp, "exit")) {
+		return -1;
+	} else if (!strcmp(temp, "decode")) {
+		return 1;
+	}else if (!strcmp(temp, "prime")) {
+		return 2;
+	}
+
+	return 0;
+}
+
+void decode(char *message, int key, int n) {
+
+	for (int i = 0; i < n; i++)
+		message[i] ^= key;
+
+	message[n] = 0;
+}
+
+char* decodePrime(char *message) {
+
+	int m = 0;
+	char newMessage[DEFAULT_BUFFER_LEN];
+
+	for (int i = 1; i < strlen(message); i++) {
+
+		int del = 0;
+		for (int j = 2; j <= (i + 1); j++) {
+
+			if (!((i + 1) % j))
+				del++;
+
+		}
+		if (del < 2) {
+			newMessage[m] = message[i];
+			m++;
+		}
+	}
+	newMessage[m] = 0;
+	return newMessage;
 
 }
 
 int main() {
 
+	FILE *file;
 	int recieve_buffer_len = DEFAULT_BUFFER_LEN;
-	char recieve_buffer[DEFAULT_BUFFER_LEN];
-	char send_buffer[DEFAULT_BUFFER_LEN];
+	char recieve_buffer[DEFAULT_BUFFER_LEN] = "";
+	char send_buffer[DEFAULT_BUFFER_LEN] = "";
+	char command_buffer[DEFAULT_BUFFER_LEN] = "";
 	int status_result;
 	char *pToNewLine;
+	char *temp;
+	int result;
+
+	file = fopen("\\\\home31.cpu2.fei.stuba.sk\\users\\roc2018\\xkucan\\Documents\\zaznam.txt", "w");
+	if (file == NULL) {
+		printf("Error opening file");
+		return 0;
+	}
 
 	SOCKET ConnectSocket = INVALID_SOCKET;
 
@@ -168,43 +250,77 @@ int main() {
 	int textColor = FOREGROUND_GREEN;
 	SetConsoleTextAttribute(hConsole, textColor);
 
-	system("cls");
-	char *end_buffer = "test test test";
-	printMessages(hConsole, "test test test", 5, 5);
-
-	/*if (!connectToServer(&ConnectSocket, "147.175.115.34", "777"))
+	if (!connectToServer(&ConnectSocket, "147.175.115.34", "777"))
 		return 1;
-
-	//85917
 
 	while (1) {
 
+		system("cls");
+		printMessages(&hConsole, send_buffer, recieve_buffer);
+
 		// posielanie dat
-		scanf("%[^\n]s", send_buffer);
+		scanf("%[^\n]s", command_buffer);
 		getchar();
 
-		if (strstr("exit", send_buffer) != NULL)
+		result = parseCommnad(command_buffer);
+
+		if (result < 0) {
 			break;
+		}else if (result) {
 
-		printf("Posielam:\n%s\n",send_buffer);
+			if (result == 1) {
 
-		if (!sendMessage(&ConnectSocket, send_buffer))
-			break;
+				temp = strtok(NULL, " ");
+				char *send = temp;
 
-		// primanie dat
-		if (!recieveMessage(&ConnectSocket, recieve_buffer, recieve_buffer_len))
-			break;
+				temp = strtok(NULL, " ");
+				int key = atoi(temp);
 
-		pToNewLine = strchr(recieve_buffer, '\n');
-		*pToNewLine = 0;
+				temp = strtok(NULL, " ");
+				int len = atoi(temp);
 
-		printf("Prijata sprava:\n%s\n", recieve_buffer);
+				if (!sendMessage(file, &ConnectSocket, send))
+					break;
+				if (!recieveMessage(file, &ConnectSocket, recieve_buffer, recieve_buffer_len))
+					break;
+
+				decode(recieve_buffer, key, len);
+
+			}
+			else if (result == 2) {
+
+				if (!sendMessage(file, &ConnectSocket, decodePrime(recieve_buffer)))
+					break;
+				if (!recieveMessage(file, &ConnectSocket, recieve_buffer, recieve_buffer_len))
+					break;
+
+			}
+
+		}else{
+
+			strcpy(send_buffer,command_buffer);
+
+			if (!sendMessage(file, &ConnectSocket, send_buffer))
+				break;
+
+			// primanie dat
+			if (!recieveMessage(file, &ConnectSocket, recieve_buffer, recieve_buffer_len))
+				break;
+
+			pToNewLine = strchr(recieve_buffer, '\n');
+			*pToNewLine = 0;
+
+		}
 	}
 
 	// zavretie socketu
-	disconnectFromServer(&ConnectSocket);*/
-
+	disconnectFromServer(&ConnectSocket);
+	// reset farby
 	SetConsoleTextAttribute(hConsole, defaultColor);
+	// zavriet subor
+	fclose(file);
+	
+	system("cls");
 
     return 0;
 }
