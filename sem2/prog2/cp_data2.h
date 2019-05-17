@@ -1,3 +1,5 @@
+// Jan Kucan 85917
+
 #ifndef CP_DATA_H_INCLUDED
 #define CP_DATA_H_INCLUDED
 

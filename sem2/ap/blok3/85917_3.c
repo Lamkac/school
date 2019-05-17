@@ -1,5 +1,4 @@
-// Blok3.cpp : Defines the entry point for the console application.
-//
+// Jan Kucan 85917
 
 #include "stdafx.h"
 

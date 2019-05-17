@@ -1,3 +1,5 @@
+// Jan Kucan 85917
+
 #include "stdafx.h"
 
 #include <stdio.h>
