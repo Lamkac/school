@@ -13,7 +13,7 @@ typedef struct {
 } Compare;
 
 int compareEmployee(Employee *employee, Compare *compare); // skusit porovnat podla podmienky
-int sort(Employee list[], int n, char* sort_key); // roztriedit pole
-int prune(Employee list[], int *n, Compare *compare); // skratit pole podla podmienky
+int sort(Employee **list, int n, char* sort_key); // roztriedit pole
+Employee** prune(Employee **list, int *n, Compare *compare, int freeMemory); // skratit pole podla podmienky
 
 #endif

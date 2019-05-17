@@ -7,10 +7,9 @@
 
 #include "database.h"
 #include "database_sort.h"
+#include "database_file.h"
 
-#define MAX_ZAM 100
-
-int parseCommand(char *command_list, Compare *compare, char *error_output){
+int parseCommand(char *command_list, Compare *compare, char* temp_output, char *error_output){
 	
 	// vynuluje compare strukturu
 	char *temp;
@@ -27,6 +26,55 @@ int parseCommand(char *command_list, Compare *compare, char *error_output){
 		if(!strcmp(temp,"exit")){
 			return -1;
 		// ukazanie zaznamov
+		}else if(!strcmp(temp,"insert")){
+			int start = 0;
+			temp = strtok(NULL," ");
+			while(temp != NULL){
+				strcat(temp_output,temp);
+				strcat(temp_output," ");
+				temp = strtok(NULL," ");
+			}
+			
+			return -2; // insert call
+		}else if(!strcmp(temp,"delete")){
+			
+			temp = strtok(NULL," ");
+			// ak sa nenasiel
+			if(temp == NULL){
+				strcpy(error_output,"Missing key string after command where");
+				return 0;
+			}
+			// ulozi kluc do struktury
+			strcpy(compare->compare_key, temp);
+			// dalsi prikaz
+			temp = strtok(NULL," ");
+			// ak sa nenasiel
+			if(temp == NULL){
+				strcpy(error_output,"Missing comparing type >, < or = after command where");
+				return 0;
+			}
+			// ulozi podla podmienky
+			if(!strcmp(temp,"=")){
+				compare->compare_type = 3;
+			}else if (!strcmp(temp,"<")){
+				compare->compare_type = 2;
+			}else if (!strcmp(temp,">")){
+				compare->compare_type = 1;
+			}else{
+				strcpy(error_output,"Invalid comparing type!");
+				return 0;
+			}
+			// dalsi prikaz
+			temp = strtok(NULL," ");
+			// ak sa nenasiel
+			if(temp == NULL){
+				strcpy(error_output,"Missing comparing value");
+				return 0;
+			}
+			// ulozu hodnotu do struktury
+			strcpy(compare->compare_value, temp);
+			
+			return -3; // delete call
 		}else if(!strcmp(temp,"show")){
 			// dalsi prikaz
 			temp = strtok(NULL," ");
@@ -115,15 +163,21 @@ int main(int argc, char* argv[]) {
 	int newN = n;
 	char command_list[128];
 	char error[128]; // chybova hlaska
+	char temp_output[128];
 	int result = 0;
 	Compare compare;
 	// zamenstancy
-	Employee employees[MAX_ZAM];
-	Employee employees_show[MAX_ZAM];
+	Employee **employees;
+	Employee **employees_show;
 	// vygenerovat zamestnancov
-	generateEmployees(employees,n);
+	//employees = generateEmployees(n);
+	employees = loadEmployees(&n,"zoznam.txt");
+	employees_show = malloc(n * sizeof(Employee*));
+	
 	// hlavny loop
 	while(1){
+		temp_output[0] = 0;
+		error[0] = 0;
 		// vynulovat a okopirovat original zamestancov do noveho pola
 		newN = n;
 		for(int i=0; i<n; i++)
@@ -136,21 +190,39 @@ int main(int argc, char* argv[]) {
 		scanf("%[^\n]s",command_list);
 		getchar();
 		// vykonat prikaz
-		result = parseCommand(command_list, &compare, error);
+		result = parseCommand(command_list, &compare, temp_output, error);
 		// ak je 0 vypisat chybu, ak mensie ako 0 ukoncit program inak pokracovat
-		if (result < 0) {
+		if (result == -1) {
+			// ulozit zmeny
+			saveEmployees(employees,n,"zoznam.txt");
 			break;
+		}else if (result == -2){
+			
+			Employee *e = loadEmployee(temp_output);
+			employees = addEmployee(employees,&n,e);
+			employees_show = realloc(employees_show,(n * sizeof(Employee*)));
+			
+			continue;
+		}else if (result == -3){
+			
+			employees = prune(employees,&n,&compare,1);
+			
+			continue;
 		}else if (result == 1){
 			// vykonat prikaz
 			printf("\n");
-			if(!prune(employees_show,&newN,&compare)){
+			
+			employees_show = prune(employees_show,&newN,&compare,0);
+			printEmployees(employees_show,newN);
+			
+			/*if(!prune(employees_show,&newN,&compare)){
 				// ak sa zle vykonal
 				result = 0;
 				strcpy(error,"Invalid command");
 			}else {
 				// vypisat novy zoznam
 				printEmployees(employees_show,newN);
-			}
+			}*/
 			
 		}
 		if (result == 0)

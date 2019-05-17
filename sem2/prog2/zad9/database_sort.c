@@ -12,8 +12,8 @@ int dateToNumber(Date date){
 // roztriedit podla mena
 int databaseSortByName(const void *v1, const void *v2){
 	
-	const Employee *p1 = (Employee *)v1;
-    const Employee *p2 = (Employee *)v2;
+	const Employee *p1 = *(Employee **)v1;
+    const Employee *p2 = *(Employee **)v2;
 	
 	return strcmp(p1->info.name,p2->info.name);
 	
@@ -21,8 +21,8 @@ int databaseSortByName(const void *v1, const void *v2){
 // roztriedit podla id
 int databaseSortById(const void *v1, const void *v2){
 	
-	const Employee *p1 = (Employee *)v1;
-    const Employee *p2 = (Employee *)v2;
+	const Employee *p1 = *(Employee **)v1;
+    const Employee *p2 = *(Employee **)v2;
 	
 	return p1->ID - p2->ID;
 	
@@ -30,8 +30,8 @@ int databaseSortById(const void *v1, const void *v2){
 // roztriedit podla platu
 int databaseSortBySalary(const void *v1, const void *v2){
 	
-	const Employee *p1 = (Employee *)v1;
-    const Employee *p2 = (Employee *)v2;
+	const Employee *p1 = *(Employee **)v1;
+    const Employee *p2 = *(Employee **)v2;
 	
 	return p1->salary - p2->salary;
 	
@@ -39,8 +39,8 @@ int databaseSortBySalary(const void *v1, const void *v2){
 // roztriedit podla pozicie
 int databaseSortByPosition(const void *v1, const void *v2){
 	
-	const Employee *p1 = (Employee *)v1;
-    const Employee *p2 = (Employee *)v2;
+	const Employee *p1 = *(Employee **)v1;
+    const Employee *p2 = *(Employee **)v2;
 	
 	return strcmp(p1->position,p2->position);
 	
@@ -48,14 +48,14 @@ int databaseSortByPosition(const void *v1, const void *v2){
 // roztriedit podla datumu narodenia
 int databaseSortByBirth(const void *v1, const void *v2){
 	
-	const Employee *p1 = (Employee *)v1;
-    const Employee *p2 = (Employee *)v2;
+	const Employee *p1 = *(Employee **)v1;
+    const Employee *p2 = *(Employee **)v2;
 	
 	return dateToNumber(p1->info.birth) - dateToNumber(p2->info.birth);
 	
 }
 // roztriedit pole
-int sort(Employee list[], int n, char* sort_key){
+int sort(Employee **list, int n, char* sort_key){
 	
 	int (*sortFunction)(const void*,const void*);
 	// najst spravnu funkciu podla klucu
@@ -73,39 +73,45 @@ int sort(Employee list[], int n, char* sort_key){
 		return 0;
 	}
 	// vytriedit pole
-	qsort(list,n,sizeof(Employee),sortFunction);
+	qsort(list,n,sizeof(Employee*),sortFunction);
 	return 1;
 }
 // porovnat retazec
 int compareByString(char *str1, char *str2, Compare *compare){
 	
 	if(compare->compare_type == 0)
-			return (strstr(str1,str2) != NULL);
-		else if(compare->compare_type == 1)
-			return strcmp(str2,str1)>0;
-		else
-			return strcmp(str2,str1)<0;
+		return (strstr(str1,str2) != NULL);
+	else if(compare->compare_type == 3)
+		return (strstr(str1,str2) == NULL);
+	else if(compare->compare_type == 1)
+		return strcmp(str2,str1)>0;
+	else
+		return strcmp(str2,str1)<0;
 		
 }
 // porovnat integer
 int compareByInt(int num1, int num2, Compare *compare){
 	
-		if(compare->compare_type == 0)
-			return num1 == num2;
-		else if(compare->compare_type == 1)
-			return num1 < num2;
-		else
-			return num1 > num2;
+	if(compare->compare_type == 0)
+		return num1 == num2;
+	else if(compare->compare_type == 3)
+		return num1 != num2;
+	else if(compare->compare_type == 1)
+		return num1 < num2;
+	else
+		return num1 > num2;
 }
 // porovnat double
 int compareByDouble(double num1, double num2, Compare *compare){
 	
-		if(compare->compare_type == 0)
-			return num1 == num2;
-		else if(compare->compare_type == 1)
-			return num1 < num2;
-		else
-			return num1 > num2;
+	if(compare->compare_type == 0)
+		return num1 == num2;
+	else if(compare->compare_type == 3)
+		return num1 != num2;
+	else if(compare->compare_type == 1)
+		return num1 < num2;
+	else
+		return num1 > num2;
 }
 // skusit porovnat podla podmienky
 int compareEmployee(Employee *employee, Compare *compare){
@@ -131,13 +137,13 @@ int compareEmployee(Employee *employee, Compare *compare){
 	
 }
 // skratit pole podla podmienky
-int prune(Employee list[], int *n, Compare *compare){
+Employee** prune(Employee **list, int *n, Compare *compare, int freeMemory){
 	// roztriedi pole ak je pozadovane
 	if(compare->sort_key[0] != 0)
 		if(!sort(list,*n,compare->sort_key))
 			return 0;
 	// pripravy novy list
-	Employee newList[*n];
+	Employee **newList = malloc(*n * sizeof(Employee*));
 	int newSize = 0;
 	// prejde cele pole
 	int result = 0;
@@ -147,7 +153,7 @@ int prune(Employee list[], int *n, Compare *compare){
 			break;
 		// porovna podmienku ak je
 		if(compare->compare_key[0] != 0)
-			result = (compareEmployee(&list[i],compare));
+			result = (compareEmployee(list[i],compare));
 		else
 			result = 1;
 		if(result < 0) {
@@ -157,14 +163,14 @@ int prune(Employee list[], int *n, Compare *compare){
 			// prida do noveho
 			newList[newSize] = list[i];
 			newSize++;
+		}else if(freeMemory){
+			free(list[i]);
 		}
 	}
 	// skopiruje pole
 	*n = newSize;
-	for(int i=0; i<newSize; i++){
-		list[i] = newList[i];
-	}
+	free(list);
 	
-	return 1;
+	return newList;
 }
 

@@ -40,9 +40,10 @@ typedef struct  {
 } Employee;
 
 // funkcie
-Employee generateEmployee(); // vygenerovat zamestnanca
-void generateEmployees(Employee employees[], int n); // vygenerovat n zamestnancov
+Employee* generateEmployee(); // vygenerovat zamestnanca
+Employee** generateEmployees(int n); // vygenerovat n zamestnancov
 void printEmployee(Employee *employees); // vypisat zamestnanca
-void printEmployees(Employee employees[], int n); // vypisat zamestnancov
+void printEmployees(Employee **employees, int n); // vypisat zamestnancov
+Employee** addEmployee(Employee **employees, int *n, Employee *employee); // pridat zamestnanca
 
 #endif
